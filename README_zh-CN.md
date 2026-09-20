@@ -211,3 +211,7 @@ chmod 755 /var/packages/YourPackage/target/ui/index.cgi
 - 如果 DSM 在保存过程中强制终止 CGI，下次保存时会自动识别并清理遗留的保存锁，无需用户手工处理。
 
 安全边界见 [SECURITY_zh-CN.md](SECURITY_zh-CN.md)。
+
+## 许可证
+
+本项目源码采用 [MIT License](LICENSE) 发布。套件图标、Synology DSM 组件及其他第三方资源仍适用各自的许可证与商标规则。
