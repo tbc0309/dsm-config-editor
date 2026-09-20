@@ -1,56 +1,56 @@
-# Synology DSM Configuration Editor
+# Synology DSM 配置编辑器
 
-[简体中文](README_zh-CN.md)
+[English](README.en.md) | [简体中文](README.md)
 
-A dependency-free Shell CGI configuration editor for Synology DSM 7 packages. The main branch follows DSM's official locale and includes 21 language packs.
+这是一个用于 Synology DSM 7 套件的无依赖 Shell CGI 配置文件编辑器。主分支按照 DSM 官方语言设置切换界面，包含 21 种语言。
 
-![Preview](docs/images/configuration-editor-preview.png)
+![界面预览](docs/images/configuration-editor-preview.png)
 
-frps example with `webServer.port` read from `frps.toml`:
+frps 示例：从 `frps.toml` 读取 `webServer.port`：
 
-![frps configuration editor preview](docs/images/frps-config-editor-preview.png)
+![frps 配置编辑器界面](docs/images/frps-config-editor-preview.png)
 
-## Editions
+## 两种版本
 
-The repository provides two editions with the same editor, security, backup, port, and restart features:
+仓库提供两个版本，编辑、保存、安全校验、三份备份、端口读取和重启功能完全一致：
 
-- `main` — Multilingual edition. Uses DSM's official `texts` locale, includes 21 editor language packs, and falls back to English.
-- `zh_cn` — Simplified Chinese edition. Uses embedded Simplified Chinese text and does not include `texts`, `i18n`, or language switching.
+- `main`：多语言版。按照 DSM 官方 `texts` 语言设置切换，包含 21 个编辑器语言包，无对应翻译时回退英文。
+- `zh_cn`：简体中文版。界面固定为简体中文，不包含 `texts`、`i18n` 和语言切换逻辑。
 
-Choose `main` for public packages or users with different DSM languages. Choose `zh_cn` for a smaller, fixed Chinese interface. Do not mix UI files from the two branches.
+面向其他开发者发布或需要适配不同 DSM 语言时选择 `main`；只需要固定中文界面时选择 `zh_cn`。不要混用两个分支中的 UI 文件。
 
-## Features
+## 功能
 
-- DSM Cookie authentication with `admin` or `authenticated` access mode
-- Read, edit, save, reload, line numbers, and cursor position
-- Lightweight highlighting for TOML, YAML, JSON, INI, env, and Shell
-- Three rotating backups: `.bak.1` is newest
-- Atomic save lock and same-directory temporary-file replacement
-- Fixed service port or numeric port read from the configuration file
-- Read-only Open Service button with an optional path
-- Package status and optional `start-stop-status stop` / `start` after saving
-- Official DSM `texts` locale integration with English fallback
-- 2 MiB file limit, CSP, same-origin save checks, and HTML escaping
+- DSM Cookie 登录验证，支持 `admin` 和 `authenticated` 权限模式
+- 读取、编辑、保存、重新读取、行号和光标位置
+- TOML、YAML、JSON、INI、env、Shell 轻量语法高亮
+- 轮换保留三份备份，`.bak.1` 最新
+- 原子保存锁和同目录临时文件替换
+- 固定服务端口，或从配置文件指定键读取数字端口
+- 只读“打开服务”按钮，可附加访问路径
+- 显示套件状态，保存后可执行 `start-stop-status stop`、`start`
+- 使用 DSM 官方 `texts` 语言设置，英文保底
+- 2 MiB 限制、CSP、同源保存校验和 HTML 转义
 
-## File responsibilities
+## 文件职责
 
 ```text
 ui/
-├─ config          DSM desktop registration: app ID, title, icon, version
-├─ Main.js         DSM window class and iframe URL
-├─ gettoken.html   Retrieves SynoToken before opening the editor
-├─ index.cgi       Editor page and read/write API
-├─ editor.conf     Per-package configuration path, port, access, restart
-├─ texts/          Official DSM desktop locale resources
-├─ i18n/           Editor language packs
-└─ images/         DSM desktop icons from 16 to 256 pixels
+├─ config          DSM 桌面注册：应用 ID、标题、图标、版本
+├─ Main.js         DSM 窗口类和 iframe 地址
+├─ gettoken.html   打开编辑器前获取 SynoToken
+├─ index.cgi       编辑器页面和读写接口
+├─ editor.conf     套件配置路径、端口、权限和重启方式
+├─ texts/          DSM 官方桌面语言资源
+├─ i18n/           编辑器语言包
+└─ images/         16–256 像素 DSM 桌面图标
 ```
 
-`index.cgi` and `gettoken.html` are generic. To use the UI in another package, update the following package-specific files.
+`index.cgi` 和 `gettoken.html` 是通用文件。用于其他套件时，必须修改下面这些套件专用文件。
 
-## 1. Edit `ui/editor.conf`
+## 1. 修改 `ui/editor.conf`
 
-The included EasyTier configuration is the working template:
+仓库保留 EasyTier 参数作为完整样板：
 
 ```ini
 PACKAGE_NAME=EasyTier
@@ -65,70 +65,70 @@ RESTART_ARGS=
 ```
 
 - `PACKAGE_NAME`
-  - Exact package identity from SPK `INFO`, including letter case.
-  - Lifecycle mode uses it to locate `/var/packages/<PACKAGE_NAME>/scripts/start-stop-status`.
-  - Allowed characters are letters, numbers, `.`, `_`, and `-`.
+  - 必须与 SPK `INFO` 中的套件标识完全一致，包括大小写。
+  - lifecycle 模式通过它定位 `/var/packages/<PACKAGE_NAME>/scripts/start-stop-status`。
+  - 只允许字母、数字、点、下划线和连字符。
 - `CONFIG_FILE`
-  - Absolute path to the file displayed and saved by the editor.
-  - It must already exist and be a regular file; symbolic links are not supported.
-  - The CGI account needs file read/write permission and directory permission to create temporary and backup files.
-  - The maximum readable or writable size is 2 MiB.
+  - 编辑器读取和保存的配置文件绝对路径。
+  - 文件必须已经存在并且是普通文件，不支持符号链接。
+  - CGI 账户需要文件读写权限，配置目录还要允许创建临时文件和备份。
+  - 可读取和保存的最大文件大小为 2 MiB。
 - `DEFAULT_PORT`
-  - Optional fixed service port from `1` to `65535`.
-  - The field is read-only in the UI.
-  - A valid value takes precedence over `PORT_CONFIG_KEY`.
-  - Leave it empty when the package has no web page or the port should come from the configuration file.
+  - 可选固定服务端口，范围为 `1`–`65535`。
+  - 前端只读，不允许用户修改。
+  - 有效值优先于 `PORT_CONFIG_KEY`。
+  - 套件没有网页，或端口需要从配置文件读取时留空。
 - `PORT_CONFIG_KEY`
-  - Optional exact key used only when `DEFAULT_PORT` is empty.
-  - Examples: `webServer.port`, `port`, or `http-port`.
-  - Supported lines include `key = 7500`, `key = "7500"`, `key: 7500`, and `key: "7500"`, with surrounding spaces, CRLF, common end-of-line comments, and a JSON trailing comma.
-  - The first matching key is used. Nested TOML/YAML/JSON structures are not interpreted, so use a unique key.
-  - Only a numeric value from `1` to `65535` is accepted.
+  - 只在 `DEFAULT_PORT` 为空时使用，填写需要查找的完整键名。
+  - 例如 `webServer.port`、`port`、`http-port`。
+  - 支持 `key = 7500`、`key = "7500"`、`key: 7500`、`key: "7500"`，并容忍键值两侧空格、CRLF、常见行尾注释和 JSON 末尾逗号。
+  - 读取第一个匹配项，不解析 TOML/YAML/JSON 的嵌套层级，因此应使用唯一键。
+  - 最终结果必须是 `1`–`65535` 的纯数字端口。
 - `OPEN_PATH`
-  - Optional path appended after the host and port.
-  - It must start with `/`; examples: `/`, `/xxx.html`, `/dashboard/`, or `/ui?mode=admin`.
-  - It does not change the service port or configuration file.
+  - 可选，追加在主机和端口后。
+  - 必须以 `/` 开头，例如 `/`、`/xxx.html`、`/dashboard/`、`/ui?mode=admin`。
+  - 它不会修改服务端口或配置文件。
 - `ACCESS_MODE`
-  - `admin` is the recommended default and requires DSM `administrators` membership.
-  - `authenticated` allows any signed-in DSM user to read, save, and trigger the configured post-save action.
-  - An empty value defaults to `admin`; any other value is rejected.
+  - `admin` 是推荐默认值，只允许 DSM `administrators` 组。
+  - `authenticated` 允许任何已登录 DSM 用户读取、保存并触发保存后操作。
+  - 留空按 `admin` 处理，其他值会报错。
 - `RESTART_MODE`
-  - `lifecycle`: after a successful save, runs `start-stop-status stop`, then `start`; it also enables the service-status badge.
-  - `script`: after a successful save, runs `RESTART_SCRIPT` with `RESTART_ARGS`; the status badge is hidden.
-  - `none` or empty: saves only and does not execute a post-save command.
+  - `lifecycle`：保存成功后依次执行 `start-stop-status stop`、`start`，并显示服务状态徽标。
+  - `script`：保存成功后执行 `RESTART_SCRIPT` 和 `RESTART_ARGS`，不显示服务状态徽标。
+  - `none` 或留空：只保存，不执行保存后命令。
 - `RESTART_SCRIPT`
-  - Used only by `RESTART_MODE=script`.
-  - Must be an existing executable absolute path controlled by the package maintainer.
+  - 只在 `RESTART_MODE=script` 时使用。
+  - 必须是由套件维护者控制、已经存在并且可执行的绝对路径。
 - `RESTART_ARGS`
-  - Optional whitespace-separated arguments for `RESTART_SCRIPT`, for example `restart`.
-  - Shell glob expansion is disabled, and the value is never evaluated with `eval` or `sh -c`.
+  - 传给 `RESTART_SCRIPT` 的可选空格分隔参数，例如 `restart`。
+  - CGI 已禁用文件名通配符展开，也不会使用 `eval` 或 `sh -c`。
 
-Examples:
+示例：
 
 ```ini
-# Fixed web port
+# 固定网页端口
 DEFAULT_PORT=8080
 PORT_CONFIG_KEY=
 OPEN_PATH=/admin/
 
-# Read webServer.port from frps.toml
+# 从 frps.toml 读取 webServer.port
 DEFAULT_PORT=
 PORT_CONFIG_KEY=webServer.port
 OPEN_PATH=/
 
-# Save without restarting
+# 只保存，不重启
 RESTART_MODE=none
 RESTART_SCRIPT=
 RESTART_ARGS=
 ```
 
-The Open Service controls are hidden if neither port setting produces a valid port.
+如果两个端口设置都没有得到有效端口，界面会隐藏“打开服务”区域。
 
-## 2. Edit `ui/config`
+## 2. 修改 `ui/config`
 
-Keep the JSON structure but replace the EasyTier class, title, description, icon path, and version.
+保留 JSON 结构，替换 EasyTier 类名、标题、描述、图标路径和版本。
 
-The `version` must match the program version in the SPK `INFO`; do not use a fixed editor version. `dsmappname` in `INFO` must match the app ID, for example `SYNO.SDS.EasyTier.Instance`.
+`version` 必须按照 SPK `INFO` 中的程序版本填写，不能固定成编辑器自己的版本。`INFO` 中的 `dsmappname` 必须和应用 ID 对应，例如 `SYNO.SDS.EasyTier.Instance`。
 
 ```json
 {
@@ -153,9 +153,9 @@ The `version` must match the program version in the SPK `INFO`; do not use a fix
 }
 ```
 
-## 3. Edit `ui/Main.js`
+## 3. 修改 `ui/Main.js`
 
-Replace all EasyTier identifiers with the new package class and change the iframe path:
+把以下 EasyTier 标识全部替换成新套件的类名和路径：
 
 ```text
 SYNO.SDS.EasyTier.Instance
@@ -163,11 +163,11 @@ SYNO.SDS.EasyTier.Main
 /webman/3rdparty/EasyTier/gettoken.html
 ```
 
-The class names must match `ui/config` and SPK `INFO`. The `/webman/3rdparty/<name>/` path must match the path installed by the package.
+类名必须与 `ui/config`、SPK `INFO` 对应；`/webman/3rdparty/<名称>/` 必须与套件实际安装的网页映射一致。
 
-## 4. Replace `ui/images`
+## 4. 替换 `ui/images`
 
-Replace the complete icon set while keeping these filenames:
+替换整套图标，但保持以下文件名：
 
 ```text
 icon_16.png   icon_24.png   icon_32.png   icon_48.png
@@ -175,43 +175,43 @@ icon_64.png   icon_72.png   icon_96.png   icon_128.png
 icon_256.png
 ```
 
-Do not reuse EasyTier icons when publishing another package.
+发布其他套件时不要继续使用 EasyTier 图标。
 
-## Installation requirements
+## 安装要求
 
-- Install the whole `ui` directory into the package target.
-- Map it to `/webman/3rdparty/<package>/`.
-- Set `index.cgi` to executable:
+- 将完整 `ui` 目录安装到套件 target。
+- 映射到 `/webman/3rdparty/<套件>/`。
+- 给 CGI 执行权限：
 
 ```sh
 chmod 755 /var/packages/YourPackage/target/ui/index.cgi
 ```
 
-- The package account must be able to read and write the configuration directory.
-- Lifecycle mode requires permission to control the package process.
+- 套件账户必须能读写配置文件所在目录。
+- lifecycle 模式还必须能控制套件自己的进程。
 
-## Checklist
+## 检查清单
 
-- `INFO package`, `INFO dsmappname`, `ui/config`, and `Main.js` identifiers agree.
-- `ui/config` version matches the SPK program version.
-- `editor.conf` points to the correct package and configuration file.
-- The icon set belongs to the package.
-- The configuration file and directory permissions allow backups and temporary files.
-- Test signed-out, standard-user, administrator, save, backup, status, and restart behavior on DSM.
+- `INFO package`、`INFO dsmappname`、`ui/config`、`Main.js` 标识一致。
+- `ui/config` 版本与 SPK 程序版本一致。
+- `editor.conf` 指向正确的套件和配置文件。
+- 图标属于当前套件。
+- 配置目录权限允许创建备份和临时文件。
+- 在 DSM 上测试退出登录、普通用户、管理员、保存、备份、状态和重启。
 
-## Languages
+## 语言
 
-The included DSM codes are `chs`, `cht`, `csy`, `dan`, `enu`, `fre`, `ger`, `hun`, `ita`, `jpn`, `krn`, `nld`, `nor`, `plk`, `ptb`, `ptg`, `rus`, `spn`, `sve`, `tha`, and `trk`. The locale comes from DSM `texts`; the editor does not inspect browser language.
+内置 `chs`、`cht`、`csy`、`dan`、`enu`、`fre`、`ger`、`hun`、`ita`、`jpn`、`krn`、`nld`、`nor`、`plk`、`ptb`、`ptg`、`rus`、`spn`、`sve`、`tha`、`trk`。语言来自 DSM `texts`，不读取浏览器语言。
 
-## Notes
+## 注意
 
-- Keep `ACCESS_MODE=admin` unless ordinary signed-in users must edit the configuration.
-- Saving does not validate TOML, YAML, or other configuration syntax.
-- A failed restart does not roll back a successful save.
-- A save lock left behind after DSM forcibly terminates the CGI is detected and removed automatically on the next save.
+- 除非普通登录用户确实需要编辑配置，否则保持 `ACCESS_MODE=admin`。
+- 保存前不会校验 TOML、YAML 等配置语法。
+- 重启失败不会撤销已经成功保存的内容。
+- 如果 DSM 在保存过程中强制终止 CGI，下次保存时会自动识别并清理遗留的保存锁，无需用户手工处理。
 
-See [SECURITY.md](SECURITY.md) for the security boundary.
+安全边界见 [SECURITY_zh-CN.md](SECURITY_zh-CN.md)。
 
-## License
+## 许可证
 
-Released under the [MIT License](LICENSE). Package icons, Synology DSM components, and other third-party assets remain subject to their respective licenses and trademarks.
+本项目源码采用 [MIT License](LICENSE) 发布。套件图标、Synology DSM 组件及其他第三方资源仍适用各自的许可证与商标规则。
