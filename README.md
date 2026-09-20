@@ -210,7 +210,7 @@ chmod 755 /var/packages/YourPackage/target/ui/index.cgi
 - 重启失败不会撤销已经成功保存的内容。
 - 如果 DSM 在保存过程中强制终止 CGI，下次保存时会自动识别并清理遗留的保存锁，无需用户手工处理。
 
-安全边界见 [SECURITY_zh-CN.md](SECURITY_zh-CN.md)。
+安全边界见 [SECURITY.md](SECURITY.md)。
 
 ## 许可证
 

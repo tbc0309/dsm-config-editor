@@ -210,7 +210,7 @@ The included DSM codes are `chs`, `cht`, `csy`, `dan`, `enu`, `fre`, `ger`, `hun
 - A failed restart does not roll back a successful save.
 - A save lock left behind after DSM forcibly terminates the CGI is detected and removed automatically on the next save.
 
-See [SECURITY.md](SECURITY.md) for the security boundary.
+See [SECURITY.en.md](SECURITY.en.md) for the security boundary.
 
 ## License
 
